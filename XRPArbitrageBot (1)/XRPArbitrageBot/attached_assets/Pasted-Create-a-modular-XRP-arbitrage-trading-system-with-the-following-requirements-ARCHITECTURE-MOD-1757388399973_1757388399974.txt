@@ -1,0 +1,96 @@
+Create a modular XRP arbitrage trading system with the following requirements:
+
+ARCHITECTURE - MODULAR DESIGN (Like LEGO Blocks):
+Build separate, reusable modules that can be easily maintained and extended:
+
+Core Modules:
+- api_connector.py: MEXC exchange API connection
+- price_monitor.py: Real-time XRP/USDT and XRP/USDC price monitoring
+- balance_manager.py: Wallet balance management and stablecoin rebalancing
+- trade_executor.py: Trade execution logic (sell first, then buy)
+- risk_controller.py: Risk management and safety checks
+- data_logger.py: Transaction logging and history
+- profit_analyzer.py: Profit/loss analysis and statistics
+- config_manager.py: Configuration management
+
+Interface Modules:
+- main_gui.py: Main control panel (tkinter)
+- monitor_gui.py: Separate trading monitor window (tkinter)
+- chart_display.py: Charts and visualizations
+- alert_system.py: Alert and notification system
+
+Business Logic Modules:
+- arbitrage_engine.py: Main arbitrage strategy engine
+- trading_strategy.py: Trading decision logic
+- data_pipeline.py: Data processing pipeline
+
+APPLICATION STRUCTURE:
+Create TWO separate GUI applications:
+
+1. MAIN CONTROL PANEL (main_gui.py):
+- Real-time market display (XRP/USDT, XRP/USDC prices, spread)
+- Wallet balance display (USDT, USDC, XRP)
+- System time display
+- Trading configuration settings:
+  * Spread trigger threshold (default: 0.003, configurable)
+  * Trade amount per transaction (default: 100 XRP, configurable)
+  * Daily maximum trade volume (default: 5000 XRP, configurable)
+- Control buttons: API Connect, Start Trading, Stop Trading
+- Today's trading summary (total trades, total profit/loss)
+- Clean, professional trading interface design
+
+2. TRADING MONITOR WINDOW (monitor_gui.py):
+- Real-time trading activity feed (unlimited entries)
+- Comprehensive profit/loss analysis dashboard:
+  * Today's P&L
+  * Cumulative P&L
+  * Success rate statistics
+  * Average profit per trade
+  * P&L trend charts
+- Historical trade query functionality
+- Statistical charts:
+  * Trading volume distribution
+  * Spread fluctuation charts
+  * Time period analysis
+- Risk monitoring alerts
+- Professional trading terminal appearance
+
+TRADING LOGIC:
+- Monitor XRP/USDT vs XRP/USDC price spread on MEXC exchange
+- Execute arbitrage when spread >= configurable threshold
+- Trading sequence: ALWAYS sell first, then buy (mandatory order)
+- Maximum 3 pending orders due to latency tolerance
+- Automatic stablecoin rebalancing (USDT/USDC) when imbalance detected
+
+RISK MANAGEMENT:
+- Price volatility protection
+- Balance safety margins (10% safety buffer)
+- Order timeout handling
+- Error handling and logging
+- Trading frequency limits
+
+PROFIT ANALYSIS FEATURES:
+- Real-time P&L tracking
+- Trade success rate calculation
+- Average profit per trade
+- Maximum drawdown tracking
+- Time-based performance analysis
+- Visual profit trend charts
+- Risk-adjusted returns
+
+TECHNICAL REQUIREMENTS:
+- Python with tkinter for GUI
+- ccxt library for MEXC API integration
+- Modular architecture for easy maintenance and expansion
+- Configuration file support
+- Comprehensive error handling
+- Logging system
+- Data persistence
+
+DEPLOYMENT:
+- Cloud-ready for 24/7 operation
+- Environment variable support for API keys
+- Automatic restart capabilities
+- Resource optimization
+
+Create this as a complete, professional-grade trading system with clean code architecture, comprehensive documentation, and production-ready features.

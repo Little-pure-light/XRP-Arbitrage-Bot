@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration - XRP Arbitrage System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card trading-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Trading Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="config-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Trading Parameters
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label for="spread_threshold" class="form-label">
+                                    Spread Threshold
+                                    <i class="fas fa-info-circle text-muted ms-1" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Minimum spread percentage required to trigger arbitrage trade"></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="spread_threshold" 
+                                           name="spread_threshold" 
+                                           value="{{ config.spread_threshold if config else 0.003 }}" 
+                                           min="0.001" 
+                                           max="0.1" 
+                                           step="0.001"
+                                           required>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Default: 0.003% (0.3 basis points)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="trade_amount" class="form-label">
+                                    Trade Amount per Transaction
+                                    <i class="fas fa-info-circle text-muted ms-1" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Amount of XRP to trade in each arbitrage opportunity"></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="trade_amount" 
+                                           name="trade_amount" 
+                                           value="{{ config.trade_amount if config else 100 }}" 
+                                           min="1" 
+                                           max="10000" 
+                                           step="1"
+                                           required>
+                                    <span class="input-group-text">XRP</span>
+                                </div>
+                                <div class="form-text">Default: 100 XRP</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="daily_max_volume" class="form-label">
+                                    Daily Maximum Volume
+                                    <i class="fas fa-info-circle text-muted ms-1" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Maximum XRP volume that can be traded per day"></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="daily_max_volume" 
+                                           name="daily_max_volume" 
+                                           value="{{ config.daily_max_volume if config else 5000 }}" 
+                                           min="100" 
+                                           max="100000" 
+                                           step="100"
+                                           required>
+                                    <span class="input-group-text">XRP</span>
+                                </div>
+                                <div class="form-text">Default: 5000 XRP</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-warning mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>Risk Management
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label for="risk_buffer" class="form-label">
+                                    Risk Buffer
+                                    <i class="fas fa-info-circle text-muted ms-1" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Safety margin percentage to maintain in account balances"></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="risk_buffer" 
+                                           name="risk_buffer" 
+                                           value="{{ config.risk_buffer if config else 0.1 }}" 
+                                           min="0.05" 
+                                           max="0.5" 
+                                           step="0.05"
+                                           required>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Default: 10% safety buffer</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="max_pending_orders" class="form-label">
+                                    Maximum Pending Orders
+                                    <i class="fas fa-info-circle text-muted ms-1" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Maximum number of orders that can be pending simultaneously"></i>
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="max_pending_orders" 
+                                       name="max_pending_orders" 
+                                       value="{{ config.max_pending_orders if config else 3 }}" 
+                                       min="1" 
+                                       max="10" 
+                                       step="1"
+                                       required>
+                                <div class="form-text">Default: 3 orders (due to latency tolerance)</div>
+                            </div>
+                            
+                            <!-- Advanced Risk Settings -->
+                            <div class="advanced-settings">
+                                <h6 class="text-info mb-3 mt-4">
+                                    <i class="fas fa-cogs me-2"></i>Advanced Settings
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="auto_rebalance" 
+                                               name="auto_rebalance" 
+                                               checked>
+                                        <label class="form-check-label" for="auto_rebalance">
+                                            Auto-rebalance stablecoins (USDT/USDC)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="volatility_protection" 
+                                               name="volatility_protection" 
+                                               checked>
+                                        <label class="form-check-label" for="volatility_protection">
+                                            Enable volatility protection
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4 pt-4 border-top border-secondary">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button type="button" class="btn btn-outline-warning me-2" onclick="resetToDefaults()">
+                                        <i class="fas fa-undo me-1"></i>Reset to Defaults
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info" onclick="validateConfiguration()">
+                                        <i class="fas fa-check-circle me-1"></i>Validate
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Current Status -->
+        <div class="card trading-card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Current Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="status-item">
+                    <span class="status-label">Configuration:</span>
+                    <span class="badge bg-success">Valid</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Updated:</span>
+                    <span class="text-muted small">
+                        {{ config.updated_at.strftime('%Y-%m-%d %H:%M UTC') if config and config.updated_at else 'Never' }}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Trading Status:</span>
+                    <span class="badge bg-secondary" id="trading-status-badge">Stopped</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuration Preview -->
+        <div class="card trading-card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-eye me-2"></i>Configuration Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="preview-item">
+                    <span>Spread Trigger:</span>
+                    <span id="preview-spread">{{ "%.3f"|format(config.spread_threshold * 100 if config else 0.3) }}%</span>
+                </div>
+                <div class="preview-item">
+                    <span>Trade Size:</span>
+                    <span id="preview-amount">{{ config.trade_amount if config else 100 }} XRP</span>
+                </div>
+                <div class="preview-item">
+                    <span>Daily Limit:</span>
+                    <span id="preview-limit">{{ config.daily_max_volume if config else 5000 }} XRP</span>
+                </div>
+                <div class="preview-item">
+                    <span>Risk Buffer:</span>
+                    <span id="preview-buffer">{{ "%.0f"|format(config.risk_buffer * 100 if config else 10) }}%</span>
+                </div>
+                <div class="preview-item">
+                    <span>Max Orders:</span>
+                    <span id="preview-orders">{{ config.max_pending_orders if config else 3 }}</span>
+                </div>
+                
+                <hr class="border-secondary">
+                
+                <div class="preview-calculation">
+                    <h6 class="text-muted mb-2">Calculations</h6>
+                    <div class="small">
+                        <div class="d-flex justify-content-between">
+                            <span>Max trades/day:</span>
+                            <span id="calc-max-trades">50</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Min spread (USD):</span>
+                            <span id="calc-min-spread">$0.001</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Est. daily profit:</span>
+                            <span id="calc-daily-profit">$5.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuration Help -->
+        <div class="card trading-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Configuration Guide
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="help-section">
+                    <h6 class="text-primary">Recommended Settings</h6>
+                    <div class="small mb-3">
+                        <ul class="list-unstyled">
+                            <li><strong>Conservative:</strong> 0.005% spread, 50 XRP trades</li>
+                            <li><strong>Balanced:</strong> 0.003% spread, 100 XRP trades</li>
+                            <li><strong>Aggressive:</strong> 0.002% spread, 200 XRP trades</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h6 class="text-warning">Safety Guidelines</h6>
+                    <div class="small">
+                        <ul class="list-unstyled">
+                            <li>• Keep risk buffer ≥ 10%</li>
+                            <li>• Start with small trade amounts</li>
+                            <li>• Monitor performance daily</li>
+                            <li>• Adjust based on market conditions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Form validation and preview updates
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePreview();
+        updateCalculations();
+        
+        // Add event listeners to form inputs
+        const inputs = document.querySelectorAll('#config-form input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                updatePreview();
+                updateCalculations();
+            });
+        });
+    });
+    
+    function updatePreview() {
+        const spreadThreshold = parseFloat(document.getElementById('spread_threshold').value) * 100;
+        const tradeAmount = parseFloat(document.getElementById('trade_amount').value);
+        const dailyLimit = parseFloat(document.getElementById('daily_max_volume').value);
+        const riskBuffer = parseFloat(document.getElementById('risk_buffer').value) * 100;
+        const maxOrders = parseInt(document.getElementById('max_pending_orders').value);
+        
+        document.getElementById('preview-spread').textContent = spreadThreshold.toFixed(3) + '%';
+        document.getElementById('preview-amount').textContent = tradeAmount + ' XRP';
+        document.getElementById('preview-limit').textContent = dailyLimit + ' XRP';
+        document.getElementById('preview-buffer').textContent = riskBuffer.toFixed(0) + '%';
+        document.getElementById('preview-orders').textContent = maxOrders;
+    }
+    
+    function updateCalculations() {
+        const tradeAmount = parseFloat(document.getElementById('trade_amount').value);
+        const dailyLimit = parseFloat(document.getElementById('daily_max_volume').value);
+        const spreadThreshold = parseFloat(document.getElementById('spread_threshold').value);
+        
+        const maxTrades = Math.floor(dailyLimit / tradeAmount);
+        const minSpreadUsd = tradeAmount * 0.52 * spreadThreshold; // Assuming ~$0.52 XRP price
+        const estDailyProfit = maxTrades * minSpreadUsd;
+        
+        document.getElementById('calc-max-trades').textContent = maxTrades;
+        document.getElementById('calc-min-spread').textContent = '$' + minSpreadUsd.toFixed(3);
+        document.getElementById('calc-daily-profit').textContent = '$' + estDailyProfit.toFixed(2);
+    }
+    
+    function validateConfiguration() {
+        const form = document.getElementById('config-form');
+        const formData = new FormData(form);
+        
+        // Basic validation
+        const spreadThreshold = parseFloat(formData.get('spread_threshold'));
+        const tradeAmount = parseFloat(formData.get('trade_amount'));
+        const dailyLimit = parseFloat(formData.get('daily_max_volume'));
+        const riskBuffer = parseFloat(formData.get('risk_buffer'));
+        
+        let isValid = true;
+        let errors = [];
+        
+        if (spreadThreshold < 0.001 || spreadThreshold > 0.1) {
+            errors.push('Spread threshold must be between 0.001% and 0.1%');
+            isValid = false;
+        }
+        
+        if (tradeAmount > dailyLimit) {
+            errors.push('Trade amount cannot exceed daily maximum volume');
+            isValid = false;
+        }
+        
+        if (riskBuffer < 0.05) {
+            errors.push('Risk buffer should be at least 5% for safety');
+            isValid = false;
+        }
+        
+        if (isValid) {
+            showAlert('Configuration is valid!', 'success');
+        } else {
+            showAlert('Configuration errors: ' + errors.join(', '), 'danger');
+        }
+    }
+    
+    function resetToDefaults() {
+        if (confirm('Reset all settings to default values?')) {
+            document.getElementById('spread_threshold').value = 0.003;
+            document.getElementById('trade_amount').value = 100;
+            document.getElementById('daily_max_volume').value = 5000;
+            document.getElementById('risk_buffer').value = 0.1;
+            document.getElementById('max_pending_orders').value = 3;
+            
+            updatePreview();
+            updateCalculations();
+            
+            showAlert('Configuration reset to defaults', 'info');
+        }
+    }
+    
+    function showAlert(message, type) {
+        // Create and show bootstrap alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insert at top of form
+        const form = document.getElementById('config-form');
+        form.insertBefore(alertDiv, form.firstChild);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+</script>
+{% endblock %}
